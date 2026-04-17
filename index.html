@@ -122,6 +122,66 @@ h1 {
   color: #fff;
 }
 
+.format-picker {
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  padding: 0.9rem;
+}
+
+.picker-title {
+  margin: 0 0 0.65rem;
+  color: #ffe9f3;
+  font-weight: 700;
+}
+
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.format-option {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 0.7rem 0.55rem;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.format-option:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.format-option.active {
+  background: rgba(255, 92, 158, 0.28);
+  border-color: rgba(255, 193, 221, 0.85);
+}
+
+.format-name {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.format-note {
+  display: block;
+  color: #ffe5f1;
+  font-size: 0.84rem;
+  opacity: 0.95;
+}
+
+.format-result {
+  margin: 0.7rem 0 0;
+  color: #fff1f8;
+  font-weight: 600;
+}
+
 .actions {
   margin-top: 1.4rem;
   display: flex;
@@ -164,6 +224,40 @@ h1 {
   font-weight: 600;
 }
 
+.music-panel {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.music-toggle {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(18, 10, 34, 0.55);
+  color: #fff;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.music-toggle:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 92, 158, 0.25);
+}
+
+.music-toggle:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .bg-hearts::before,
 .bg-hearts::after {
   content: "";
@@ -200,6 +294,10 @@ h1 {
     padding: 1rem;
   }
 
+  .format-grid {
+    grid-template-columns: 1fr;
+  }
+
   .btn {
     width: 100%;
   }
@@ -208,6 +306,10 @@ h1 {
   </style>
 </head>
 <body>
+  <div class="music-panel">
+    <button class="music-toggle" id="musicToggle" type="button" aria-pressed="false">Музыка: выкл</button>
+  </div>
+  <audio id="bgMusic" src="music/date-music.mp3" loop preload="auto"></audio>
   <div class="bg-hearts" aria-hidden="true"></div>
 
   <main class="invite">
@@ -237,6 +339,25 @@ h1 {
       <p class="countdown" id="countdown">-- дней --:--:--</p>
     </section>
 
+    <section class="format-picker" aria-label="Выбор формата вечера">
+      <p class="picker-title">Выбери формат вечера:</p>
+      <div class="format-grid">
+        <button class="format-option" type="button" data-format="Прогулка у моря">
+          <span class="format-name">Прогулка</span>
+          <span class="format-note">Море, закат и разговоры</span>
+        </button>
+        <button class="format-option" type="button" data-format="Кофе и десерт">
+          <span class="format-name">Кофе</span>
+          <span class="format-note">Уютное место и сладкое</span>
+        </button>
+        <button class="format-option" type="button" data-format="Кино-вечер">
+          <span class="format-name">Кино</span>
+          <span class="format-note">Фильм и теплые эмоции</span>
+        </button>
+      </div>
+      <p class="format-result" id="formatResult">Выбрано: прогулка у моря</p>
+    </section>
+
     <div class="actions">
       <button class="btn btn-primary" id="yesBtn" type="button">Да, с удовольствием 💖</button>
       <button class="btn btn-ghost" id="maybeBtn" type="button">Мне нужно подумать</button>
@@ -251,6 +372,12 @@ const countdownEl = document.getElementById("countdown");
 const resultEl = document.getElementById("result");
 const yesBtn = document.getElementById("yesBtn");
 const maybeBtn = document.getElementById("maybeBtn");
+const formatResultEl = document.getElementById("formatResult");
+const formatOptions = Array.from(document.querySelectorAll(".format-option"));
+const musicToggleBtn = document.getElementById("musicToggle");
+const bgMusicEl = document.getElementById("bgMusic");
+let selectedFormat = "Прогулка у моря";
+let musicOn = false;
 
 // Set convenient default: next Saturday at 20:00 local time.
 function getNextSaturdayAtEightPm() {
@@ -291,7 +418,7 @@ function updateCountdown() {
 }
 
 yesBtn.addEventListener("click", () => {
-  resultEl.textContent = "Ура! Я очень жду нашу встречу 💞";
+  resultEl.textContent = `Ура! Тогда наш формат: ${selectedFormat.toLowerCase()} 💞`;
   burstHearts();
 });
 
@@ -300,7 +427,55 @@ maybeBtn.addEventListener("mouseenter", () => {
 });
 
 maybeBtn.addEventListener("click", () => {
-  resultEl.textContent = "Я умею ждать, но надеюсь на твое «Да» 😊";
+  resultEl.textContent = `Я умею ждать, но надеюсь на твое «Да». Пока оставим: ${selectedFormat.toLowerCase()} 😊`;
+});
+
+function selectFormat(button) {
+  selectedFormat = button.dataset.format || selectedFormat;
+  formatOptions.forEach((item) => item.classList.remove("active"));
+  button.classList.add("active");
+  formatResultEl.textContent = `Выбрано: ${selectedFormat.toLowerCase()}`;
+}
+
+formatOptions.forEach((button) => {
+  button.addEventListener("click", () => selectFormat(button));
+});
+
+if (formatOptions.length > 0) {
+  selectFormat(formatOptions[0]);
+}
+
+function updateMusicButtonState() {
+  musicToggleBtn.textContent = musicOn ? "Музыка: вкл" : "Музыка: выкл";
+  musicToggleBtn.setAttribute("aria-pressed", musicOn ? "true" : "false");
+}
+
+bgMusicEl.volume = 0.35;
+
+musicToggleBtn.addEventListener("click", async () => {
+  if (!bgMusicEl.src) return;
+
+  if (musicOn) {
+    bgMusicEl.pause();
+    musicOn = false;
+    updateMusicButtonState();
+    return;
+  }
+
+  try {
+    await bgMusicEl.play();
+    musicOn = true;
+  } catch (_) {
+    musicOn = false;
+  }
+
+  updateMusicButtonState();
+});
+
+bgMusicEl.addEventListener("error", () => {
+  musicOn = false;
+  updateMusicButtonState();
+  resultEl.textContent = "Добавь файл music/date-music.mp3 в репозиторий, чтобы музыка заработала.";
 });
 
 function burstHearts() {
