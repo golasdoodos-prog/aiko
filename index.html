@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Приглашение на свидание</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Marck+Script&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg-hearts" aria-hidden="true"></div>
+
+  <main class="invite">
+    <p class="eyebrow">Специально для тебя</p>
+    <h1>Это официальное приглашение на очень уютное свидание</h1>
+    <p class="subtitle">
+      Обещаю тёплую атмосферу, вкусный кофе и много поводов улыбаться.
+      Согласишься провести со мной один прекрасный вечер?
+    </p>
+
+    <figure class="memory-photo">
+      <img src="assets/invite-photo.png" alt="Твое красивое фото у моря">
+      <figcaption>Этот вечер будет таким же красивым ✨</figcaption>
+    </figure>
+
+    <section class="card">
+      <h2>План вечера</h2>
+      <ul>
+        <li>Прогулка по красивым местам</li>
+        <li>Кофе или десерт в уютном месте</li>
+        <li>Разговоры обо всём и немного магии</li>
+      </ul>
+      <p class="date-line">
+        Когда: <strong id="dateText">суббота, 20:00</strong>
+      </p>
+      <p class="countdown-label">До встречи осталось:</p>
+      <p class="countdown" id="countdown">-- дней --:--:--</p>
+    </section>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="yesBtn" type="button">Да, с удовольствием 💖</button>
+      <button class="btn btn-ghost" id="maybeBtn" type="button">Мне нужно подумать</button>
+    </div>
+
+    <p class="result" id="result" aria-live="polite"></p>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
